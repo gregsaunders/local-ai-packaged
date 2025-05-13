@@ -2,7 +2,7 @@ x-n8n: &service-n8n
   image: n8nio/n8n:latest
   environment:
     - DB_TYPE=postgresdb
-    - DB_POSTGRESDB_HOST=db
+    - DB_POSTGRESDB_HOST=postgres
     - DB_POSTGRESDB_USER=postgres
     - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
     - DB_POSTGRESDB_DATABASE=postgres
@@ -69,9 +69,12 @@ services:
     entrypoint: /bin/sh
     command:
       - "-c"
-      - "n8n import:credentials --separate --input=/backup/credentials && n8n import:workflow --separate --input=/backup/workflows"
+      - "sleep 10 && n8n import:workflow --separate --input=/backup/workflows"
     volumes:
       - ./volumes/n8n_backup:/backup
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   n8n:
     <<: *service-n8n
